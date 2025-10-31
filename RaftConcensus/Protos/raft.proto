@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option csharp_namespace = "Raft";
+
+package raft;
+
+message RequestVoteRequest {
+    int64 term = 1;         // Candidate's term
+    string candidateId = 2; // Candidate requesting vote
+    int64 lastLogIndex = 3; // Index of candidate’s last log entry
+    int64 lastLogTerm = 4; // Term of candidate’s last log entry
+}
+
+message RequestVoteResponse {
+    int64 term = 1;              // Current term, for candidate to update itself
+    bool voteGranted = 2;        // True means candidate received vote
+}
+
+// AppendEntries RPC (also used for heartbeats)
+message AppendEntriesRequest {
+  int64 term = 1;              // Leader’s term
+  string leaderId = 2;         // So follower can redirect clients
+  int64 prevLogIndex = 3;      // Index of log entry immediately preceding new ones
+  int64 prevLogTerm = 4;       // Term of prevLogIndex entry
+  repeated LogEntry entries = 5; // Log entries to store (empty for heartbeat)
+  int64 leaderCommit = 6;      // Leader’s commitIndex
+}
+
+message AppendEntriesResponse {
+  int64 term = 1;              // Current term, for leader to update itself
+  bool success = 2;            // True if follower contained entry matching prevLogIndex and prevLogTerm
+}
+
+// Log Entry
+message LogEntry {
+  int64 term = 1;
+  string command = 2;          // e.g., "set:1:TestValue" for our KV store
+}
+
+// gRPC Service Definition
+service RaftService {
+  rpc RequestVote (RequestVoteRequest) returns (RequestVoteResponse);
+  rpc AppendEntries (AppendEntriesRequest) returns (AppendEntriesResponse);
+}
