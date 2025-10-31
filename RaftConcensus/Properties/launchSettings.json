@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RaftConcensus": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
